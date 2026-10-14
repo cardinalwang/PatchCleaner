@@ -1,0 +1,30 @@
+name: Build PatchCleaner (.exe)
+
+on:
+  workflow_dispatch: # 這能讓你手動在網頁上點擊「開始編譯」
+
+jobs:
+  build:
+    runs-on: windows-2022 # 讓 GitHub 在雲端開一台 Windows 2022 伺服器
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive # 如果專案有相依套件，會一併下載
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Restore NuGet Packages
+      run: nuget restore PatchCleaner.sln
+
+    - name: Build Solution (Release x64)
+      run: msbuild PatchCleaner.sln /p:Configuration=Release /p:Platform=x64
+
+    - name: Upload Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: PatchCleaner-Exe
+        path: |
+          x64/Release/*.exe
