@@ -1,22 +1,18 @@
-name: Build PatchCleaner (.exe)
+.name: Build PatchCleaner (.exe)
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-2022
+    # 關鍵修正：切換回原生完美支援此專案的環境，自帶 ATL/WTL 與 v142 工具集
+    runs-on: windows-2019
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         submodules: recursive
-
-    # 修正點：在雲端伺服器上安裝 Visual Studio 的 ATL 開發套件
-    - name: Install ATL Component
-      run: |
-        & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.VC.ATL --passive --norestart
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
