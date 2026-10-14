@@ -1,4 +1,4 @@
-.name: Build PatchCleaner (.exe)
+name: Build PatchCleaner (.exe)
 
 on:
   workflow_dispatch:
