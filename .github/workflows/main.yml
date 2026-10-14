@@ -5,8 +5,7 @@ on:
 
 jobs:
   build:
-    # 修正：使用現行正常服務的伺服器
-    runs-on: windows-2022
+    runs-on: windows-2022 # 使用官方現行的 Windows 2022 伺服器
 
     steps:
     - name: Checkout repository
@@ -14,22 +13,17 @@ jobs:
       with:
         submodules: recursive
 
-    # 1. 強制在 Windows 2022 上部署舊版 v142 工具集與 ATL
-    - name: Install VS2019 Build Tools & ATL
-      run: |
-        & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.VC.v142.x86.x64 --add Microsoft.VisualStudio.Component.VC.ATL --passive --norestart
-
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    # 2. 自動還原 NuGet 依賴套件（包含專案需要的 WTL 框架）
+    # 自動還原專案所需的 WTL 等 NuGet 套件
     - name: Restore NuGet Packages
       run: nuget restore PatchCleaner.sln
 
-    # 3. 編譯方案（手動覆蓋工具集與路徑變數）
+    # 關鍵修正：直接強制專案使用伺服器內建且完整的 v143 (VS2022) 工具集與最新 SDK
     - name: Build Solution (Release x64)
       run: |
-        msbuild PatchCleaner.sln /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v142 /p:WindowsTargetPlatformVersion=10.0
+        msbuild PatchCleaner.sln /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0
 
     - name: Upload Executable
       uses: actions/upload-artifact@v4
