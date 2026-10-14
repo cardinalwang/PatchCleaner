@@ -1,17 +1,22 @@
 name: Build PatchCleaner (.exe)
 
 on:
-  workflow_dispatch: # 這能讓你手動在網頁上點擊「開始編譯」
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-2022 # 讓 GitHub 在雲端開一台 Windows 2022 伺服器
+    runs-on: windows-2022
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        submodules: recursive # 如果專案有相依套件，會一併下載
+        submodules: recursive
+
+    # 修正點：在雲端伺服器上安裝 Visual Studio 的 ATL 開發套件
+    - name: Install ATL Component
+      run: |
+        & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Component.VC.ATL --passive --norestart
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
@@ -27,4 +32,4 @@ jobs:
       with:
         name: PatchCleaner-Exe
         path: |
-          x64/Release/*.exe
+          Build/Release.x64/*.exe
